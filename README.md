@@ -34,3 +34,6 @@ sample = {
  print("time cost: ", model.time_cost)
  print("usage token: ", model.tokens_usages)
 ```
+
+### 🔍 Case Study
+See [case study](case_study.pdf).
