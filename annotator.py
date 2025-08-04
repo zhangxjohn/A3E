@@ -299,7 +299,7 @@ class AnalogyAutoAnnotator:
             self.llama3_tokens_usages["prompt"] += usage_tokens[0]
             self.llama3_tokens_usages["completion"] += usage_tokens[1]
             self.llama3_tokens_usages["total"] += usage_tokens[2]
-        elif llm_name in ['gpt-4-0125-preview', 'gpt-4-turbo-2024-04-09', 'gpt-4', 'gpt-3.5-turbo-0125', 'gpt-4o', 'dlab']:
+        elif llm_name in ['gpt-4-0125-preview', 'gpt-4-turbo-2024-04-09', 'gpt-4', 'gpt-3.5-turbo-0125', 'gpt-4o']:
             self.gpt4_tokens_usages["prompt"] += usage_tokens[0]
             self.gpt4_tokens_usages["completion"] += usage_tokens[1]
             self.gpt4_tokens_usages["total"] += usage_tokens[2]
@@ -526,18 +526,18 @@ class AnalogyAutoAnnotator:
         if base_url is None:
             if model in ['Meta-Llama-3.1-70B-Instruct']:
                 api_key = '1234'
-                base_url = 'http://ks-gpu-7:8100/v1'
+                base_url = 'your_base_url'
             elif model in ['Meta-Llama-3.1-8B-Instruct']:
                 api_key = '1234'
-                base_url = 'http://ks-gpu-8:8200/v1'
-            elif model in ['gpt-4-0125-preview', 'gpt-4-turbo-2024-04-09', 'gpt-4', 'gpt-3.5-turbo-0125', 'gpt-4o', 'dlab']:    
+                base_url = 'your_base_url'
+            elif model in ['gpt-4-0125-preview', 'gpt-4-turbo-2024-04-09', 'gpt-4', 'gpt-3.5-turbo-0125', 'gpt-4o']:    
                 api_key = OPENAI_API_KEY
                 base_url = None
             else:
                 raise ValueError("Invalid language model name.")
         else:
             api_key = '1234'
-            base_url = 'http://ks-gpu-7:8100/v1'
+            base_url = 'your_base_url'
         
         if model in ['Meta-Llama-3-70B-Instruct', 'Meta-Llama-3.1-70B-Instruct', 'Meta-Llama-3.1-8B-Instruct']:
             kwargs.update({

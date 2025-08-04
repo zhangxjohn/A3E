@@ -37,3 +37,14 @@ sample = {
 
 ### 🔍 Case Study
 See [case study](case_study.pdf).
+
+## 📒 Citation
+```
+@inproceedings{zhang2025can,
+  title={Can Language Models Serve as Analogy Annotators?},
+  author={Zhang, Xiaojing and Lyu, Bochen},
+  booktitle={Findings of the Association for Computational Linguistics: ACL 2025},
+  pages={15853--15883},
+  year={2025}
+}
+```
