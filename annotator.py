@@ -15,9 +15,6 @@ except:
 from prompts import system_message_en, entities_analysis_prompt_en, entities_analysis_prompt_en_llama3_8b, sentences_alignment_prompt_en, sentences_causality_prompt_en, sentences_causality_prompt_en_llama_8b, conclusions_analogy_prompt_en, modify_dissimilar_prompt_en, conclusions_analogy_prompt_abbr_en
 
 PROXY = os.environ.get('HTTPS_PROXY')
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
-AZURE_ENDPOINT = os.environ.get('AZURE_ENDPOINT')
-AZURE_API_KEY = os.environ.get('AZURE_API_KEY')
 
 class AnalogyAutoAnnotator:
     """
@@ -48,6 +45,8 @@ class AnalogyAutoAnnotator:
                 verbose: bool=False,
                 e2e: bool=False,
                 en_prompt: bool=False,
+                api_key: str=None,
+                base_url: str=None,
         ):
         if isinstance(llm_name, str):
             self.llm_name = [llm_name]*4
@@ -61,9 +60,9 @@ class AnalogyAutoAnnotator:
         self.verbose = verbose
         self.e2e = e2e
         self.en_prompt = en_prompt
+        self.api_key = api_key
+        self.base_url = base_url
 
-        self.llama3_tokens_usages = {"prompt": 0, "completion": 0, "total": 0}
-        self.gpt4_tokens_usages = {"prompt": 0, "completion": 0, "total": 0}
         self.tokens_usages = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
         self.time_cost = 0
 
@@ -100,6 +99,8 @@ class AnalogyAutoAnnotator:
                     model=self.llm_name[0],
                     temperature=self.temperature, 
                     max_tokens=self.max_tokens,
+                    api_key=self.api_key,
+                    base_url=self.base_url,
                     count_tokens=True)
                 self.count_usage_tokens(llm_name=self.llm_name[0], usage_tokens=usage_tokens)
                 if self.verbose: 
@@ -122,6 +123,8 @@ class AnalogyAutoAnnotator:
                     model=self.llm_name[0], 
                     temperature=self.temperature,
                     max_tokens=self.max_tokens, 
+                    api_key=self.api_key,
+                    base_url=self.base_url,
                     count_tokens=True)
                 self.count_usage_tokens(llm_name=self.llm_name[0], usage_tokens=usage_tokens)
                 if self.verbose: 
@@ -140,6 +143,8 @@ class AnalogyAutoAnnotator:
                     model=self.llm_name[1],
                     temperature=self.temperature,
                     max_tokens=self.max_tokens,
+                    api_key=self.api_key,
+                    base_url=self.base_url,
                     count_tokens=True)
                 self.count_usage_tokens(llm_name=self.llm_name[1], usage_tokens=usage_tokens)
                 if self.verbose: 
@@ -161,6 +166,8 @@ class AnalogyAutoAnnotator:
                     model=self.llm_name[2],
                     temperature=self.temperature,
                     max_tokens=self.max_tokens,
+                    api_key=self.api_key,
+                    base_url=self.base_url,
                     count_tokens=True)
                 self.count_usage_tokens(llm_name=self.llm_name[2], usage_tokens=usage_tokens)
                 if self.verbose: 
@@ -189,6 +196,8 @@ class AnalogyAutoAnnotator:
                         model=self.llm_name[3],
                         temperature=self.temperature, 
                         max_tokens=self.max_tokens,
+                        api_key=self.api_key,
+                        base_url=self.base_url,
                         count_tokens=True)
                     self.count_usage_tokens(llm_name=self.llm_name[3], usage_tokens=usage_tokens)
                     if self.verbose: 
@@ -295,14 +304,6 @@ class AnalogyAutoAnnotator:
         usage_tokens: List[int]
             The usage of tokens for the prompt and completion.
         """
-        if llm_name in ['Meta-Llama-3-70B-Instruct', 'Llama3-70B-Chinese-Chat', 'llama3', "Meta-Llama-3.1-8B-Instruct"]: 
-            self.llama3_tokens_usages["prompt"] += usage_tokens[0]
-            self.llama3_tokens_usages["completion"] += usage_tokens[1]
-            self.llama3_tokens_usages["total"] += usage_tokens[2]
-        elif llm_name in ['gpt-4-0125-preview', 'gpt-4-turbo-2024-04-09', 'gpt-4', 'gpt-3.5-turbo-0125', 'gpt-4o']:
-            self.gpt4_tokens_usages["prompt"] += usage_tokens[0]
-            self.gpt4_tokens_usages["completion"] += usage_tokens[1]
-            self.gpt4_tokens_usages["total"] += usage_tokens[2]
         self.tokens_usages["prompt_tokens"] += usage_tokens[0]
         self.tokens_usages["completion_tokens"] += usage_tokens[1]
         self.tokens_usages["total_tokens"] += usage_tokens[2]
@@ -342,6 +343,8 @@ class AnalogyAutoAnnotator:
                 last_json_str = self.get_gpt_completion(
                     prompt=user_msg,
                     model=self.llm_name[3],
+                    api_key=self.api_key,
+                    base_url=self.base_url,
                 )
                 try:
                     json_data = json.loads(last_json_str)
@@ -516,13 +519,6 @@ class AnalogyAutoAnnotator:
         usage_tokens: List[int]
             The usage of tokens for the prompt and completion.
         """
-        if model == 'llama3':
-            model = "Meta-Llama-3.1-70B-Instruct"
-        elif model == 'kimi':
-            model = 'moonshot-v1-8k'
-        elif model == 'llama3-8B':
-            model = "Meta-Llama-3.1-8B-Instruct"
-
         if base_url is None:
             if model in ['Meta-Llama-3.1-70B-Instruct']:
                 api_key = '1234'
@@ -535,9 +531,6 @@ class AnalogyAutoAnnotator:
                 base_url = None
             else:
                 raise ValueError("Invalid language model name.")
-        else:
-            api_key = '1234'
-            base_url = 'your_base_url'
         
         if model in ['Meta-Llama-3-70B-Instruct', 'Meta-Llama-3.1-70B-Instruct', 'Meta-Llama-3.1-8B-Instruct']:
             kwargs.update({

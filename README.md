@@ -2,7 +2,6 @@
 
 ### ⏳ Dependencies
 
-- python >= 3.9
 - openai
 - httpx
 - pandas
@@ -12,10 +11,10 @@
 ### ⚡️ Quick Start
 
 ```
-python main.py --llm_model gpt-4o --temperature 0.01 --max_tokens 2048 
+python main.py --llm_model gpt-4o --temperature 0.01 --max_tokens 2048 --api_key api-key --base_url base-url
 ```
 
-You slao can test a samle like this:
+You slao can test a sample like this:
 
 ```python
 from annotator import AnalogyAutoAnnotator
@@ -26,11 +25,19 @@ sample = {
       "ground_truth": "True Analogy"
  }
 
- model = AnalogyAutoAnnotator(llm_name='gpt-4o', temperature=0.01, verbose=True, modify_dsrt=True, summarize_by_llm=False, en_prompt=True)
- analogy_type, reason_process, summarize_json = aaa.run(sample)
+ model = AnalogyAutoAnnotator(
+            llm_name='model_name, e.g., gpt-4o',
+            api_key='your api key',
+            base_url='corresponding base_url',
+            temperature=0.01, 
+            verbose=True, 
+            modify_dsrt=True, 
+            summarize_by_llm=False, 
+            en_prompt=True)
+ analogy_type, reason_process, summarize_json = model.run(sample)
  print(reason_process)
  print(summarize_json)
- print("type: ", analogy_type)
+ print("predict type: ", analogy_type)
  print("time cost: ", model.time_cost)
  print("usage token: ", model.tokens_usages)
 ```

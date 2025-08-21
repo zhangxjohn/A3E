@@ -20,6 +20,8 @@ current_path = os.path.dirname(__file__)
 def main(all_analogies, args, dirname):
     annotator = AnalogyAutoAnnotator(
         llm_name=args.llm_model, 
+        api_key=args.api_key,
+        base_url=args.base_url,
         temperature=args.temperature, 
         verbose=args.verbose,
         e2e=args.e2e,
@@ -33,8 +35,7 @@ def main(all_analogies, args, dirname):
     ground_truth_pool = []
     false_ana, surface_ana, appear_ana, anomaly_ana, near_ana, far_ana = 0, 0, 0, 0, 0, 0
     false_ana_c, surface_ana_c, appear_ana_c, anomaly_ana_c, near_ana_c, far_ana_c = 0, 0, 0, 0, 0, 0
-    llama3_prompt_tokens, llama3_completion_tokens, llama3_total_tokens = 0, 0, 0
-    gpt4_prompt_tokens, gpt4_completion_tokens, gpt4_total_tokens = 0, 0, 0
+    prompt_tokens, completion_tokens, total_tokens = 0, 0, 0
     acc_count = 0
 
     idx = 0
@@ -92,21 +93,13 @@ def main(all_analogies, args, dirname):
         idx += 1
     end_time = time.time()
 
-    if args.llm_model in ['Meta-Llama-3-70B-Instruct', 'Meta-Llama-3.1-70B-Instruct', 'llama3', 'Meta-Llama-3.1-8B-Instruct']: 
-        llama3_prompt_tokens += annotator.tokens_usages["prompt_tokens"]
-        llama3_completion_tokens += annotator.tokens_usages["completion_tokens"]
-        llama3_total_tokens += annotator.tokens_usages["total_tokens"]
-    elif args.llm_model in ['gpt-4-0125-preview', 'gpt-4-turbo-2024-04-09', 'gpt-4', 'gpt-3.5-turbo-0125', 'gpt-4o', 'dlab']:
-        gpt4_prompt_tokens += annotator.tokens_usages["prompt_tokens"]
-        gpt4_completion_tokens += annotator.tokens_usages["completion_tokens"]
-        gpt4_total_tokens += annotator.tokens_usages["total_tokens"]
+    prompt_tokens += annotator.tokens_usages["prompt_tokens"]
+    completion_tokens += annotator.tokens_usages["completion_tokens"]
+    total_tokens += annotator.tokens_usages["total_tokens"]
 
-    result_stats_df = pd.DataFrame([{"llama3_prompt_tokens": llama3_prompt_tokens, 
-                                     "llama3_completion_tokens": llama3_completion_tokens, 
-                                     "llama3_total_tokens": llama3_total_tokens,
-                                     "gpt4_prompt_tokens": gpt4_prompt_tokens, 
-                                     "gpt4_completion_tokens": gpt4_completion_tokens, 
-                                     "gpt4_total_tokens": gpt4_total_tokens,
+    result_stats_df = pd.DataFrame([{"prompt_tokens": prompt_tokens, 
+                                     "completion_tokens": completion_tokens, 
+                                     "total_tokens": total_tokens,
                                      "literally_similar_count": f"{near_ana}({near_ana_c})",
                                      "true_analogy_count": f"{far_ana}({far_ana_c})",
                                      "false_analogy_count": f"{false_ana}({false_ana_c})",
@@ -144,6 +137,8 @@ if __name__ == '__main__':
     argparser.add_argument('--save_results', '-SR', type=bool, default=True, help='save results')
     argparser.add_argument('--save_logging', '-SL', type=bool, default=True, help='save log')
     argparser.add_argument('--e2e', '-E2E', type=bool, default=False, help='End to End(one-step) to verify')
+    argparser.add_argument('--api_key', type=str, default=None, help='LLM api key')
+    argparser.add_argument('--base_url', type=str, default=None, help='LLM base_url')
     args = argparser.parse_args()
 
     with open(f"{current_path}/data/{args.data_file}.json", "r") as file:
